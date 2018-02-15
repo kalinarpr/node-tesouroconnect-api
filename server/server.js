@@ -1,53 +1,30 @@
-//mongoose validators & mongoose schemas
+const express = require('express');
+const bodyParser = require('body-parser');
 
 
-var mongoose = require('mongoose');
-var fs = require('fs');
+var {mongoose} = require('./db/mongoose');
+var {User} = require('./models/user');
+var {Challenge} = require('./models/challenge');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TesouroConnect');
+var app = express();
+//middleware
+app.use(bodyParser.json());
 
-var User = mongoose.model('User',{
-  login:{
-    type: String,
-    required: true,
-    trim:true
-  },
-  senha:{
-    type: String,
-    required: true,
-    minlength: 6,
-    maxlength: 8
-  },
-  nome: {
-    type: String
-  },
-  area: {
-    type: String,
-    required: true
-  },
-  funcao:{
-    type: String
-  },
-  foto: {
-    data: Buffer,
-    contentType: String
-  }
+app.post('/desafio', (req,res) => {
+  var desafio = new Challenge({
+    titulo:req.body.titulo,
+    resumo:req.body.resumo,
+    dataCriacao: Date.now(),
+    dataTermino:req.body.dataTermino,
+    desafiante:req.body.desafiante
+  });
+  desafio.save().then((doc) => {
+    res.send(doc);
+  }, (e) => {
+    res.status(400).send(e);
+  });
 });
 
-var newUser = new User({
-  login: "kalinarpr@gmail.com",
-  senha: "12345",
-  nome: "Kalina Porto",
-  area: "COSIS",
-  funcao: ""
-});
-
-newUser.foto.data = fs.readFileSync("C:/Users/kalina.porto.STN/Documents/GERAN/projetos/node.js/node-tesouroconnect-api/images/mulher_icon.gif");
-newUser.foto.contentType = "image/gif";
-
-newUser.save().then((doc) => {
-  console.log("saved user",doc);
-}, (e) => {
-  console.log("unable to save user");
+app.listen(3000, () => {
+  console.log('Server started on port 3000');
 });
