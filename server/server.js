@@ -1,3 +1,6 @@
+//mongoose validators & mongoose schemas
+
+
 var mongoose = require('mongoose');
 var fs = require('fs');
 
@@ -6,16 +9,22 @@ mongoose.connect('mongodb://localhost:27017/TesouroConnect');
 
 var User = mongoose.model('User',{
   login:{
-    type: String
+    type: String,
+    required: true,
+    trim:true
   },
   senha:{
-    type: String
+    type: String,
+    required: true,
+    minlength: 6,
+    maxlength: 8
   },
   nome: {
     type: String
   },
   area: {
-    type: String
+    type: String,
+    required: true
   },
   funcao:{
     type: String
