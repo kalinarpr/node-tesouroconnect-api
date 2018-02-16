@@ -43,6 +43,24 @@ var User = mongoose.model('User',{
   }
 });
 
+User.statics.findByCredentials = function (email,pwd) {
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject();
+    }
+
+    return new Promise((resolve, reject) => {
+      if (user.senha == pwd){
+            resolve(user);
+        } else {
+          reject();
+        }
+      });
+    });
+}
+
 module.exports = {User};
 
 //Codigo modelo
