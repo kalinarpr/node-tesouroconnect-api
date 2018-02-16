@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
@@ -12,14 +13,24 @@ app.use(bodyParser.json());
 
 // POST /desafio
 app.post('/desafio', (req,res) => {
-  var desafio = new Challenge({
-    titulo:req.body.titulo,
-    resumo:req.body.resumo,
-    dataCriacao: Date.now(),
-    dataTermino:req.body.dataTermino,
-    desafiante:req.body.desafiante
-  });
+  var body = _.pick(req.body,['titulo','resumo','dataTermino','desafiante']);
+  body.dataCriacao = Date.now();
+  var desafio = new Challenge(body);
+
   desafio.save().then((doc) => {
+    res.send(doc);
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
+
+// POST /user
+// Registra um novo usuário
+app.post('/user', (req,res) => {
+  var body = _.pick(req.body,['login','senha','nome','area','funcao']);
+  var user = new User(body);
+
+  user.save().then((doc) => {
     res.send(doc);
   }, (e) => {
     res.status(400).send(e);
@@ -32,6 +43,35 @@ app.post('/user/login', (req,res) => {
 
   res.send(body);
 });
+
+// GET /desafios
+app.get('/desafios', (req,res) => {
+  Challenge.find().then((desafios) => {
+    res.send({desafios});
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
+
+// GET /desafios/:id
+app.get('/desafios/:id',(req,res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)){
+    res.status(404).send();
+  } else {
+    Challenge.findById(id).then((desafio) => {
+      if(desafio){
+        res.send(desafio)
+      } else {
+        res.status(404).send();
+      };
+    },(e) => {
+      res.status(400).send(e);
+    })
+  }
+
+})
 
 app.listen(3000, () => {
   console.log('Server started on port 3000');

@@ -43,7 +43,7 @@ var User = mongoose.model('User',{
   }
 });
 
-User.statics.findByCredentials = function (email,pwd) {
+/*User.statics.findByCredentials = function (email,pwd) {
   var User = this;
 
   return User.findOne({email}).then((user) => {
@@ -59,7 +59,7 @@ User.statics.findByCredentials = function (email,pwd) {
         }
       });
     });
-}
+}*/
 
 module.exports = {User};
 
