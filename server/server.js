@@ -6,6 +6,7 @@ const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Challenge} = require('./models/challenge');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 //middleware
@@ -70,6 +71,12 @@ app.get('/desafios/:id',(req,res) => {
   }).catch((e) => {
       res.status(400).send(e);
   });
+});
+
+//private paths
+app.get('/user/me', authenticate, (req,res) => {
+    res.send(req.user);
+
 });
 
 app.listen(3000, () => {
