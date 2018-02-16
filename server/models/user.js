@@ -1,47 +1,74 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
-var User = mongoose.model('User',{
-  login:{
-    type: String,
-    required: true,
-    trim:true,
-    unique: true,
-    validate: {
-      validator: validator.isEmail,
-      message: '{VALUE} is not a valid email'
-    }
-  },
-  senha:{
-    type: String,
-    required: true,
-    minlength: 6
-  },
-  tokens: [{
-    access: {
+var UserSchema = new mongoose.Schema(
+{
+    login:{
       type: String,
-      required: false//true
+      required: true,
+      trim:true,
+      unique: true,
+      validate: {
+        validator: validator.isEmail,
+        message: '{VALUE} is not a valid email'
+      }
     },
-    token: {
+    senha:{
       type: String,
-      required: false//true
+      required: true,
+      minlength: 6
+    },
+    tokens: [{
+      access: {
+        type: String,
+        required: false//true
+      },
+      token: {
+        type: String,
+        required: false//true
+      }
+    }],
+    nome: {
+      type: String
+    },
+    area: {
+      type: String,
+      required: true
+    },
+    funcao:{
+      type: String
+    },
+    foto: {
+      data: Buffer,
+      contentType: String
     }
-  }],
-  nome: {
-    type: String
-  },
-  area: {
-    type: String,
-    required: true
-  },
-  funcao:{
-    type: String
-  },
-  foto: {
-    data: Buffer,
-    contentType: String
-  }
 });
+
+//override do método. Devolve um objeto json somente
+//com as propriedades que queremos enviar ao user.
+//FALTA A FOTO!
+UserSchema.methods.toJSON = function() {
+    var user = this;
+    var userObj = user.toObject();
+
+    return _.pick(userObj,['_id','login','nome','area','funcao'])
+}
+
+UserSchema.methods.generateAuthToken = function() {
+  var user = this;
+  var access = 'auth';
+  var token = jwt.sign({_id: user._id.toHexString(),access},'abc123');
+
+  user.tokens = user.tokens.concat({access},{token});
+
+  return user.save().then(() =>{
+    return token;
+  })
+};
+
+var User = mongoose.model('User',UserSchema);
 
 /*User.statics.findByCredentials = function (email,pwd) {
   var User = this;
