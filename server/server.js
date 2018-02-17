@@ -42,9 +42,15 @@ app.post('/user', (req,res) => {
 
 // POST /user/login {email,senha}
 app.post('/user/login', (req,res) => {
-  var body = _.pick(req.body,['email','pwd']);
+  var body = _.pick(req.body,['login','senha']);
 
-  res.send(body);
+  User.findByCredentials(body.login,body.senha).then((user) => {
+    return user.generateAuthToken().then((token) => {
+      res.header('x-auth',token).send(user);
+    })
+  }).catch((e) => {
+      res.status(400).send();
+  });
 });
 
 // GET /desafios

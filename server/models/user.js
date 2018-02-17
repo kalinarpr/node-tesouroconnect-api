@@ -88,6 +88,23 @@ UserSchema.statics.findByToken = function(token){
   });
 };
 
+UserSchema.statics.findByCredentials = function(login,senha){
+  var User = this;
+
+  return User.findOne({login}).then((user) => {
+    if (!user) {
+      Promise.reject();
+    }
+    return new Promise((resolve,reject) => {
+      if (user.senha === senha){
+        resolve(user);
+      } else {
+        reject();
+      }
+    });
+  });
+};
+
 var User = mongoose.model('User',UserSchema);
 
 /*User.statics.findByCredentials = function (email,pwd) {
