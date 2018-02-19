@@ -19,6 +19,9 @@ app.post('/desafio', (req,res) => {
   var desafio = new Challenge(body);
 
   desafio.save().then((doc) => {
+    //cria a noticia sobre o desafio
+    
+
     res.send(doc);
   }, (e) => {
     res.status(400).send(e);
@@ -43,6 +46,8 @@ app.post('/user', (req,res) => {
 // POST /user/login {email,senha}
 app.post('/user/login', (req,res) => {
   var body = _.pick(req.body,['login','senha']);
+
+  console.log("Conectei!");
 
   User.findByCredentials(body.login,body.senha).then((user) => {
     return user.generateAuthToken().then((token) => {
