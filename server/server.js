@@ -7,6 +7,7 @@ var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Challenge} = require('./models/challenge');
 var {authenticate} = require('./middleware/authenticate');
+var {News} = require('./models/noticia');
 
 var app = express();
 //middleware
@@ -14,13 +15,21 @@ app.use(bodyParser.json());
 
 // POST /desafio
 app.post('/desafio', (req,res) => {
-  var body = _.pick(req.body,['titulo','resumo','dataTermino','desafiante']);
+  var body = _.pick(req.body,['titulo','resumo','dataTermino','desafiante','foto']);
   body.dataCriacao = Date.now();
   var desafio = new Challenge(body);
 
   desafio.save().then((doc) => {
     //cria a noticia sobre o desafio
-    
+    var noticia = new News({
+      autor: desafio.desafiante,
+      tipo: 'criou',
+      objeto: desafio.titulo,
+      dataCriacao: Date.now(),
+      //fotoObjeto: desafio.foto
+    });
+
+    noticia.save();
 
     res.send(doc);
   }, (e) => {
@@ -46,8 +55,6 @@ app.post('/user', (req,res) => {
 // POST /user/login {email,senha}
 app.post('/user/login', (req,res) => {
   var body = _.pick(req.body,['login','senha']);
-
-  console.log("Conectei!");
 
   User.findByCredentials(body.login,body.senha).then((user) => {
     return user.generateAuthToken().then((token) => {
@@ -82,6 +89,11 @@ app.get('/desafios/:id',(req,res) => {
   }).catch((e) => {
       res.status(400).send(e);
   });
+});
+
+// GET /newsfeed
+app.get('/newsfeed',(req,res) => {
+
 });
 
 //private paths

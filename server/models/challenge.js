@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const {ObjectID} = require('mongodb');
 
-var Challenge = mongoose.model('Challenge',{
+var ChallengeSchema = new mongoose.Schema(
+{
   titulo:{
     type: String,
     required: true,
@@ -20,9 +22,14 @@ var Challenge = mongoose.model('Challenge',{
     required: true
   },
   desafiante:{
-    type: String,
+    type: String,//ObjectID,
     required: true
+  },
+  foto: {
+    data: Buffer,
+    contentType: String
   }
 });
 
+var Challenge = mongoose.model('Challenge',ChallengeSchema);
 module.exports = {Challenge};
