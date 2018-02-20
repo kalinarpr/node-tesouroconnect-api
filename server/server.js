@@ -93,13 +93,16 @@ app.get('/desafios/:id',(req,res) => {
 
 // GET /newsfeed
 app.get('/newsfeed',(req,res) => {
-
+  News.find().then((news) => {
+    res.send({news});
+  }, (e) => {
+    res.status(400).send(e);
+  });
 });
 
 //private paths
 app.get('/user/me', authenticate, (req,res) => {
     res.send(req.user);
-
 });
 
 app.listen(3000, () => {
